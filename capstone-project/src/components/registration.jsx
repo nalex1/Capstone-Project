@@ -21,10 +21,10 @@ const Registration = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-100">
+    <div className="min-h-screen sm:w-full sm:max-w-md flex items-center justify-center bg-green-600">
       <form
         onSubmit={handleSubmit}
-        className="bg-black text-white shadow-lg rounded-lg p-8 w-8 max-w-md rectangle_black space-y-4"
+        className="bg-black text-white shadow-lg rounded-lg p-8 w-full max-w-2xl rectangle_black space-y-2"
       >
         <h2 className="text-2xl font-bold text-center">Signup Form</h2>
 
@@ -33,7 +33,7 @@ const Registration = () => {
           <input
             type="text"
             name="name"
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-purple-500 text-black"
             placeholder="Enter your name"
             onChange={handleChange}
             value={values.name}
@@ -46,7 +46,7 @@ const Registration = () => {
           <input
             type="email"
             name="email"
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-purple-500 text-black "
             placeholder="Enter your email"
             onChange={handleChange}
             value={values.email}
@@ -59,7 +59,7 @@ const Registration = () => {
           <input
             type="password"
             name="password"
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-purple-500  text-black"
             placeholder="Enter password"
             onChange={handleChange}
             value={values.password}
