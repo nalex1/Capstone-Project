@@ -9,24 +9,54 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const PORT = 5000;
+
 let token = "";
 
-// Get OAuth token
-async function getToken() {
-  const response = await axios.post(
-    "https://test.api.amadeus.com/v1/security/oauth2/token",
-    new URLSearchParams({
-      grant_type: "client_credentials",
-      client_id: process.env.AMADEUS_API_KEY,
-      client_secret: process.env.AMADEUS_API_SECRET,
-    })
-  );
+/* -------------------------
+   ROOT TEST ROUTE
+-------------------------- */
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
 
-  token = response.data.access_token;
-  return token;
+/* -------------------------
+   HEALTH CHECK ROUTE
+-------------------------- */
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", server: "running" });
+});
+
+/* -------------------------
+   GET AMADEUS TOKEN
+-------------------------- */
+async function getToken() {
+  try {
+    const response = await axios.post(
+      "https://test.api.amadeus.com/v1/security/oauth2/token",
+      new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: process.env.AMADEUS_API_KEY,
+        client_secret: process.env.AMADEUS_API_SECRET,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    token = response.data.access_token;
+    return token;
+  } catch (error) {
+    console.error("❌ Token Error:", error.response?.data || error.message);
+    throw new Error("Failed to generate token");
+  }
 }
 
-// Flight Search API
+/* -------------------------
+   FLIGHT SEARCH ROUTE
+-------------------------- */
 app.get("/api/flights", async (req, res) => {
   try {
     if (!token) await getToken();
@@ -34,18 +64,36 @@ app.get("/api/flights", async (req, res) => {
     const response = await axios.get(
       "https://test.api.amadeus.com/v2/shopping/flight-offers",
       {
-        headers: { Authorization: `Bearer ${token}` },
-        params: req.query,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          originLocationCode: req.query.origin,
+          destinationLocationCode: req.query.destination,
+          departureDate: req.query.departureDate,
+          adults: 1,
+          max: 10,
+        },
       }
     );
 
     res.json(response.data);
   } catch (error) {
-    console.error(error.response?.data || error.message);
+    console.error("❌ Flight API Error:", error.response?.data || error.message);
+
+    // Refresh token if expired
+    if (error.response?.status === 401) {
+      token = "";
+      return res.status(401).json({ error: "Token expired. Try again." });
+    }
+
     res.status(500).json({ error: "Failed to fetch flights" });
   }
 });
 
-app.listen(5000, () => {
-  console.log("✅ Backend running at http://localhost:5000");
+/* -------------------------
+   SERVER START
+-------------------------- */
+app.listen(PORT, () => {
+  console.log(`✅ Backend running at http://localhost:${PORT}`);
 });
