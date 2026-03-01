@@ -3,6 +3,7 @@ import axios from "axios";
 import SearchForm from "../components/SearchForm";
 import FlightResults from "../components/FlightResults";
 
+
 export default function Home() {
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,7 @@ export default function Home() {
       )}
 
       <FlightResults flights={flights} />
+      
     </div>
   );
 }
